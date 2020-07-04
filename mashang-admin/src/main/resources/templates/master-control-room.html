@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>总控室</title>
+<link href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link href="https://cdn.staticfile.org/bootstrap-fileinput/5.0.1/css/fileinput.min.css" rel="stylesheet">
+<script src="https://cdn.staticfile.org/bootstrap-fileinput/5.0.1/js/fileinput.min.js"></script>
+<link href="https://cdn.staticfile.org/wangEditor/10.0.13/wangEditor.min.css" rel="stylesheet">
+<script src="https://cdn.staticfile.org/wangEditor/10.0.13/wangEditor.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<script src="/js/common/common.js"></script>
+<style type="text/css">
+.master-control-room-input {
+	text-align: right;
+	width: 40%;
+}
+
+.customer-qrcode-div {
+	height: 120px;
+	cursor: pointer;
+}
+
+.customer-qrcode {
+	background-color: #fff;
+	height: 120px;
+	padding-right: 5px;
+	float: left !important;
+	cursor: pointer;
+}
+
+.no-supplied-customer-qrcode {
+	height: 120px;
+	line-height: 120px;
+	font-weight: bold;
+	color: red;
+}
+
+.kv-file-content {
+	width: 100% !important;
+}
+
+.view-gathering-code-dialog .modal-content {
+	width: 80%;
+}
+
+.master-control-setting {
+	padding-top: 2rem;
+}
+
+.master-control-setting .row {
+	padding-bottom: 1.2rem;
+}
+
+.master-control-setting .setting-label {
+	text-align: right;
+}
+
+#master-control-room .navbar-nav .active>.nav-link {
+	font-weight: bold;
+}
+
+.w-e-text-container {
+	height: 250px !important;
+}
+</style>
+</head>
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="master-control-room" v-cloak>
+		<nav class="navbar navbar-expand-sm bg-light navbar-light justify-content-center">
+			<ul class="navbar-nav">
+				<li class="nav-item" v-bind:class="{'active': currentPage == 'systemSetting'}" v-on:click="loadSystemSetting"><a class="nav-link">系统设置</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPage == 'registerSetting'}" v-on:click="loadRegisterSetting"><a class="nav-link">注册设置</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPage == 'receiveOrderSetting'}" v-on:click="loadReceiveOrderSetting"><a class="nav-link">接单设置</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPage == 'receiveOrderRiskSetting'}" v-on:click="loadReceiveOrderRiskSetting"><a class="nav-link">接单风控</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPage == 'rechargeSetting'}" v-on:click="loadRechargeSetting"><a class="nav-link">充值设置</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPage == 'withdrawSetting'}" v-on:click="loadWithdrawSetting"><a class="nav-link">提现设置</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPage == 'merchantSettlementSetting'}" v-on:click="loadMerchantSettlementSetting"><a class="nav-link">商户结算</a></li>
+				<li class="nav-item" v-bind:class="{'active': currentPage == 'customerServiceSetting'}" v-on:click="loadCustomerServiceSetting"><a class="nav-link">客服设置</a></li>
+				<li class="nav-item" v-on:click="refreshCache"><a class="nav-link">刷新缓存</a></li>
+			</ul>
+		</nav>
+		<div class="row" style="margin-right: 0; margin-left: 0;">
+			<div class="col-sm-9 offset-sm-3">
+				<div class="master-control-setting" v-if="currentPage == 'systemSetting'">
+					<div class="row">
+						<label class="col-sm-2 setting-label">网站标题</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control-sm master-control-room-input" v-model="websiteTitle">
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">首页地址</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control-sm master-control-room-input" v-model="homePageUrl">
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">app下载地址</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control-sm master-control-room-input" v-model="appUrl">
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">本地存储对象路径</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control-sm master-control-room-input" v-model="localStoragePath">
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">货币单位</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control-sm master-control-room-input" v-model="currencyUnit">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="memberClientSingleDeviceLogin" v-model="memberClientSingleDeviceLogin"> <label class="custom-control-label"
+									for="memberClientSingleDeviceLogin">会员端限制单一设备登录</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="merchantLoginGoogleAuth" v-model="merchantLoginGoogleAuth"> <label class="custom-control-label" for="merchantLoginGoogleAuth">商户端登陆启用谷歌身份验证</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="backgroundLoginGoogleAuth" v-model="backgroundLoginGoogleAuth"> <label class="custom-control-label"
+									for="backgroundLoginGoogleAuth">后台管理登陆启用谷歌身份验证</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="memberClientLoginGoogleAuth" v-model="memberClientLoginGoogleAuth"> <label class="custom-control-label"
+									for="memberClientLoginGoogleAuth">会员端登陆启用谷歌身份验证</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<button type="button" class="btn btn-success" v-on:click="updateSystemSetting">更新</button>
+						</div>
+					</div>
+				</div>
+				<div class="master-control-setting" v-if="currentPage == 'registerSetting'">
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="registerFun" v-model="registerFun"> <label class="custom-control-label" for="registerFun">开放注册功能</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="inviteRegisterMode" v-model="inviteRegisterMode"> <label class="custom-control-label" for="inviteRegisterMode">启用邀请注册模式</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<button type="button" class="btn btn-success" v-on:click="updateRegisterSetting">更新</button>
+						</div>
+					</div>
+				</div>
+				<div class="master-control-setting" v-if="currentPage == 'receiveOrderSetting'">
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="stopStartAndReceiveOrder" v-model="stopStartAndReceiveOrder"> <label class="custom-control-label" for="stopStartAndReceiveOrder">暂停发单接单</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">接单有效时长</label>
+						<div class="col-sm-10">
+							<input type="number" class="form-control-sm master-control-room-input" v-model="receiveOrderEffectiveDuration">分钟
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">支付有效时长</label>
+						<div class="col-sm-10">
+							<input type="number" class="form-control-sm master-control-room-input" v-model="orderPayEffectiveDuration">分钟
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">余额最低要求</label>
+						<div class="col-sm-10">
+							<input type="number" class="form-control-sm master-control-room-input" v-model="cashDepositMinimumRequire">
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">押金</label>
+						<div class="col-sm-10">
+							<input type="number" class="form-control-sm master-control-room-input" v-model="cashPledge">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<label>超过</label> <span><input type="number" class="form-control-sm master-control-room-input" style="width: 10%;" v-model="unconfirmedAutoFreezeDuration">分钟未确认冻结该订单</span>
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">订单冻结时长</label>
+						<div class="col-sm-10">
+							<input type="number" class="form-control-sm master-control-room-input" v-model="freezeEffectiveDuration">分钟
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<button type="button" class="btn btn-success" v-on:click="updateReceiveOrderSetting">更新</button>
+						</div>
+					</div>
+				</div>
+				<div class="master-control-setting" v-if="currentPage == 'receiveOrderRiskSetting'">
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="auditGatheringCode" v-model="auditGatheringCode"> <label class="custom-control-label" for="auditGatheringCode">审核收款方式</label>
+							</div>
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="banReceiveRepeatOrder" v-model="banReceiveRepeatOrder"> <label class="custom-control-label" for="banReceiveRepeatOrder">同一收款方式禁止接相同金额的订单</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<label>超过</label> <span><input type="number" class="form-control-sm master-control-room-input" style="width: 20%;" v-model="noOpsStopReceiveOrder">分钟无操作停止接单</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<label>待审核订单数量上限</label> <span> <input type="number" class="form-control-sm master-control-room-input" style="width: 20%;" v-model="waitConfirmOrderUpperLimit">单
+							</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<label>单个收款方式接单间隔</label> <span> <input type="number" class="form-control-sm master-control-room-input" style="width: 20%;" v-model="gatheringCodeReceiveOrderInterval">秒
+							</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<label>单个收款方式</label>
+							<div class="custom-control custom-switch custom-control-inline" style="margin-right: 0px;">
+								<input type="checkbox" class="custom-control-input" id="gatheringCodeEverydayUsedUpperLimit" v-model="gatheringCodeEverydayUsedUpperLimit"> <label class="custom-control-label"
+									for="gatheringCodeEverydayUsedUpperLimit">每日</label>
+							</div>
+							<span>收款次数上限<input type="number" class="form-control-sm master-control-room-input" style="width: 20%;" v-model="gatheringCodeUsedUpperLimit">次
+							</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<label>单个收款方式</label>
+							<div class="custom-control custom-switch custom-control-inline" style="margin-right: 0px;">
+								<input type="checkbox" class="custom-control-input" id="gatheringCodeEverydayGatheringUpperLimit" v-model="gatheringCodeEverydayGatheringUpperLimit"> <label
+									class="custom-control-label" for="gatheringCodeEverydayGatheringUpperLimit">每日</label>
+							</div>
+							<span>收款金额上限<input type="number" class="form-control-sm master-control-room-input" style="width: 20%;" v-model="gatheringCodeGatheringUpperLimit">
+							</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline" style="margin-right: 0px;">
+								<input type="checkbox" class="custom-control-input" id="floatAmountMode" v-model="floatAmountMode"> <label class="custom-control-label" for="floatAmountMode">浮动金额模式</label>
+							</div>
+							<span>范围
+								<div class="input-group" style="width: 54%; display: inline-block;">
+									<select class="form-control-sm" v-model="floatAmountDirection">
+										<option value="up">向上</option>
+										<option value="down">向下</option>
+									</select> <input type="number" placeholder="最低" style="width: 20%;" class="form-control-sm master-control-room-input" v-model="minFloatAmount"> <input type="number" placeholder="最高"
+										style="width: 20%;" class="form-control-sm master-control-room-input" v-model="maxFloatAmount"> 分
+								</div>
+							</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<label>连续</label> <span><input type="number" class="form-control-sm master-control-room-input" style="width: 20%;" v-model="continuationGatheringFailOffLine">次收款失败禁用该收款方式</span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<button type="button" class="btn btn-success" v-on:click="updateReceiveOrderRiskSetting">更新</button>
+						</div>
+					</div>
+				</div>
+				<div class="master-control-setting" v-if="currentPage == 'rechargeSetting'">
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<div class="custom-control custom-switch custom-control-inline">
+								<input type="checkbox" class="custom-control-input" id="cantContinuousSubmit" v-model="cantContinuousSubmit"> <label class="custom-control-label" for="cantContinuousSubmit">限制不能连续提交充值订单</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">充值订单有效时长</label>
+						<div class="col-sm-10">
+							<input type="number" class="form-control-sm master-control-room-input" v-model="rechargeOrderEffectiveDuration">分钟
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">限额/最低/最高</label>
+						<div class="col-sm-10">
+							<div class="input-group" style="width: 66%; display: inline-block;">
+								<input type="number" placeholder="最低" class="form-control-sm master-control-room-input" v-model="rechargeLowerLimit"> <input type="number" placeholder="最高"
+									class="form-control-sm master-control-room-input" v-model="rechargeUpperLimit">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">快捷录入金额</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control-sm master-control-room-input" v-model="quickInputAmount">
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">充值说明</label>
+						<div class="col-sm-10">
+							<div style="width: 70%;" id="rechargeExplainEditor"></div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<button type="button" class="btn btn-success" v-on:click="updateRechargeSetting">更新</button>
+						</div>
+					</div>
+				</div>
+				<div class="master-control-setting" v-if="currentPage == 'withdrawSetting'">
+					<div class="row">
+						<label class="col-sm-2 setting-label">每日提现次数上限</label>
+						<div class="col-sm-10">
+							<input type="number" class="form-control-sm master-control-room-input" v-model="everydayWithdrawTimesUpperLimit">次
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">限额/最低/最高</label>
+						<div class="col-sm-10">
+							<div class="input-group" style="width: 66%; display: inline-block;">
+								<input type="number" placeholder="最低" class="form-control-sm master-control-room-input" v-model="withdrawLowerLimit"> <input type="number" placeholder="最高"
+									class="form-control-sm master-control-room-input" v-model="withdrawUpperLimit">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">提现说明</label>
+						<div class="col-sm-10">
+							<div style="width: 70%;" id="withdrawExplainEditor"></div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<button type="button" class="btn btn-success" v-on:click="updateWithdrawSetting">更新</button>
+						</div>
+					</div>
+				</div>
+				<div class="master-control-setting" v-if="currentPage == 'merchantSettlementSetting'">
+					<div class="row">
+						<label class="col-sm-2 setting-label">按金额的</label>
+						<div class="col-sm-10">
+							<input type="number" class="form-control-sm master-control-room-input" style="width: 20%;" v-model="merchantSettlementRate">%收取服务费
+						</div>
+					</div>
+					<div class="row">
+						<label class="col-sm-2 setting-label">单笔最低服务费</label>
+						<div class="col-sm-10">
+							<input type="number" class="form-control-sm master-control-room-input" v-model="minServiceFee">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<button type="button" class="btn btn-success" v-on:click="updateMerchantSettlementSetting">更新</button>
+						</div>
+					</div>
+				</div>
+				<div class="master-control-setting" v-if="currentPage == 'customerServiceSetting'">
+					<div class="row">
+						<label class="col-sm-2 setting-label">客服说明</label>
+						<div class="col-sm-10">
+							<div style="width: 70%;" id="customerServiceExplainEditor"></div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-11 offset-sm-1">
+							<button type="button" class="btn btn-success" v-on:click="updateCustomerServiceSetting">更新</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="/js/master-control-room.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>设置</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.8/lib/index.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.8/lib/vant.min.js"></script>
+<script src="/js/common/common.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+</style>
+</head>
+
+<body>
+	<div id="personalInfo" v-cloak>
+		<van-nav-bar title="设置" @click-left="window.history.back(-1);" left-arrow fixed="true" placeholder="true"> </van-nav-bar>
+		<div>
+			<van-cell-group> <van-cell size="large" title="账号" :value="accountInfo.userName"></van-cell> <van-cell size="large" title="姓名" :value="accountInfo.realName"></van-cell> <van-cell
+				size="large" title="手机号" :value="accountInfo.mobile"></van-cell> <van-cell size="large" title="注册时间" :value="accountInfo.registeredTime"></van-cell> <van-cell size="large" title="最后登录时间"
+				:value="accountInfo.latelyLoginTime"></van-cell> <van-cell size="large" title="登录密码" is-link value="点击进行修改"
+				v-on:click="window.location.href = '/modify-login-pwd'"></van-cell> <van-cell size="large" title="资金密码" is-link value="点击进行修改" v-on:click="window.location.href = '/modify-money-pwd'"></van-cell> <van-cell
+				size="large" title="谷歌验证器" is-link value="点击进行绑定" v-on:click="window.location.href = '/bind-google-auth'"></van-cell> </van-cell-group>
+		</div>
+	</div>
+	<div th:replace="common/footer::html"></div>
+	<script type="text/javascript" src="/js/personal-info.js"></script>
+</body>
+</html>

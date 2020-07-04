@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>修改登录密码</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.8/lib/index.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.8/lib/vant.min.js"></script>
+<script src="/js/common/common.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+</style>
+</head>
+
+<body>
+	<div id="modifyLoginPwd" v-cloak>
+		<van-nav-bar title="修改登录密码" @click-left="window.history.back(-1);" left-arrow fixed="true" placeholder="true"> </van-nav-bar>
+		<div style="margin-top: 6rem;">
+			<van-form> <van-field label="当前密码" type="password" v-model="oldLoginPwd" placeholder="请输入当前密码" clearable></van-field> <van-field type="password" label="新密码" v-model="newLoginPwd"
+				placeholder="请输入新密码" clearable></van-field> <van-field type="password" label="确认密码" v-model="confirmLoginPwd" placeholder="请确认密码"></van-field> </van-form>
+			<div style="margin: 16px;">
+				<van-button round block type="info" v-on:click="modifyLoginPwd">修改</van-button>
+			</div>
+			<div style="margin: 16px;">
+				<van-button round block type="danger" v-on:click="window.history.back(-1);">返回</van-button>
+			</div>
+		</div>
+	</div>
+	<div th:replace="common/footer::html"></div>
+	<script type="text/javascript" src="/js/modify-login-pwd.js"></script>
+</body>
+</html>

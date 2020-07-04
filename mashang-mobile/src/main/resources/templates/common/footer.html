@@ -1,0 +1,31 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<style>
+</style>
+</head>
+<body>
+	<div id="footer" v-cloak>
+		<van-tabbar v-model="currentPathName"> <van-tabbar-item icon="hot-o" name="/receive-order" v-on:click="window.location.href = '/receive-order'">接单</van-tabbar-item> <van-tabbar-item
+			icon="bill-o" name="/audit-order" v-on:click="window.location.href = '/audit-order'">审核</van-tabbar-item> <van-tabbar-item icon="home-o" name="/my-home-page" v-on:click="window.location.href = '/my-home-page'">我的</van-tabbar-item> </van-tabbar>
+	</div>
+	<script type="text/javascript">
+		var footerVM = new Vue({
+			el : '#footer',
+			data : {
+				global : GLOBAL,
+				currentPathName : '',
+				showFooterFlag : true
+			},
+			computed : {},
+			created : function() {
+				this.currentPathName = window.location.pathname;
+			},
+			methods : {
+				goTo : function(url) {
+					window.location.href = url;
+				}
+			}
+		});
+	</script>
+</body>
+</html>

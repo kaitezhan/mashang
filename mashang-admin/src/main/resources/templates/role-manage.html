@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>后台角色管理</title>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/zTree.v3/3.5.40/css/zTreeStyle/zTreeStyle.css">
+<script src="https://cdn.staticfile.org/zTree.v3/3.5.40/js/jquery.ztree.core.min.js"></script>
+<script src="https://cdn.staticfile.org/zTree.v3/3.5.40/js/jquery.ztree.excheck.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<script src="/js/common/common.js"></script>
+<style type="text/css">
+</style>
+</head>
+
+<body>
+	<div th:replace="common/header::html"></div>
+	<div id="role-manage" v-cloak>
+		<form class="form-inline common-query-cond-form float-right" action="#">
+			<button type="button" class="btn btn-info btn-sm" v-on:click="openAddRoleModal" style="margin-right: 4px;">新增角色</button>
+		</form>
+		<table class="table common-table">
+			<thead>
+				<tr>
+					<th>角色名</th>
+					<th>创建时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="role in roles">
+					<td>{{role.name}}</td>
+					<td>{{role.createTime}}</td>
+					<td><button type="button" class="btn btn-sm btn-link" v-on:click="showEditRoleModal(role.id)">编辑</button>
+						<button type="button" class="btn btn-sm btn-link" v-on:click="delRole(role.id)">删除</button>
+						<button type="button" class="btn btn-sm btn-link" v-on:click="showAssignMenuModal(role)">分配菜单</button></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div v-if="addOrUpdateRoleFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{roleActionTitle}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="addOrUpdateRoleFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>角色名:</label> <input type="text" class="form-control" v-model="editRole.name">
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="addOrUpdateRole">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="addOrUpdateRoleFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-if="assignMenuFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">分配菜单</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="assignMenuFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body" style="height: 550px; overflow: auto;">
+								<div>
+									<ul id="menuTree" class="ztree"></ul>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="assignMenu">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="assignMenuFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/js/role-manage.js"></script>
+</body>
+</html>

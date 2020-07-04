@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>我的</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.8/lib/index.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.8/lib/vant.min.js"></script>
+<link href="/css/common/common.css" rel="stylesheet" type="text/css">
+<script src="/js/common/common.js"></script>
+<style type="text/css">
+.user-name {
+	text-align: center;
+	color: #8d9096;
+	font-size: 22px;
+	height: 4rem;
+	line-height: 4rem;
+}
+
+.overview {
+	text-align: center;
+	padding-top: 0.6rem;
+	padding-bottom: 0.6rem;
+	margin: 0.5rem;
+	border-radius: 20px;
+	border: 1px solid #ddd;
+	box-shadow: 0px 8px 6px #c8c9cc;
+	margin: 0.5rem;
+	border-radius: 20px;
+	border: 1px solid #ddd;
+}
+
+.overview-label {
+	color: #8d9096;
+}
+
+.overview-value {
+	color: #1989fa;
+	padding-bottom: 0.6rem;
+	font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+	<div id="myHomePage" v-cloak>
+		<div style="min-height: 40rem; overflow: auto;">
+			<van-notice-bar left-icon="volume-o" color="#1989fa" background="#ecf9ff" scrollable v-if="latestNotice != null && latestNotice != ''" :text="latestNotice.title" v-on:click="markRead"></van-notice-bar>
+			<div style="padding-bottom: 0.5rem;">
+				<div class="user-name">{{userName}}</div>
+				<van-row class="overview"> <van-col span="8">
+				<div class="overview-value">{{freezeAmount}}</div>
+				<div class="overview-label">冻结资金</div>
+				</van-col> <van-col span="8">
+				<div class="overview-value">{{cashDeposit}}</div>
+				<div class="overview-label">可用余额</div>
+				</van-col> <van-col span="8">
+				<div class="overview-value">0</div>
+				<div class="overview-label">今日收益</div>
+				</van-col> </van-row>
+			</div>
+			<van-grid :column-num="3"> <van-grid-item icon="balance-pay" text="充值" v-on:click="goTo('/recharge')"></van-grid-item> <van-grid-item icon="refund-o" text="提现"
+				v-on:click="goTo('/withdraw')"></van-grid-item> <van-grid-item icon="credit-pay" text="绑定银行卡" v-on:click="goTo('/bank-card')"></van-grid-item> </van-grid>
+			<van-grid :column-num="3"> <van-grid-item icon="qr" text="收款码" v-on:click="goTo('/gathering-code')"></van-grid-item> <van-grid-item icon="records" text="接单记录"
+				v-on:click="goTo('/receive-order-record')"></van-grid-item> <van-grid-item icon="label-o" text="资金明细" v-on:click="goTo('/personal-account-change')"></van-grid-item> </van-grid>
+			<van-grid :column-num="3"> <van-grid-item icon="add-o" text="推荐二维码" v-on:click="goTo('/promote-qr')"></van-grid-item> <van-grid-item icon="friends-o" text="我的团队"
+				v-on:click="goTo('/my-team')"></van-grid-item> <van-grid-item icon="setting-o" text="设置" v-on:click="goTo('/personal-info')"></van-grid-item> </van-grid>
+			<van-grid :column-num="3"> <van-grid-item icon="comment-circle-o" text="联系客服" v-on:click="goTo('/customer-service')"></van-grid-item> </van-grid>
+			<div style="margin: 16px;">
+				<van-button round block type="danger" v-on:click="logout">退出登录</van-button>
+			</div>
+		</div>
+	</div>
+	<div th:replace="common/footer::html"></div>
+	<script type="text/javascript">
+		var myHomePageVM = new Vue({
+			el : '#myHomePage',
+			data : {
+				global : GLOBAL,
+				latestNotice : '',
+				userName : '',
+				cashDeposit : '',
+				accountType : '',
+				freezeAmount : 0,
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+				this.getLatestNotice();
+				this.getUserAccountInfo();
+			},
+			methods : {
+
+				goTo : function(url) {
+					window.location.href = url;
+				},
+
+				getLatestNotice : function() {
+					var that = this;
+					that.$http.get('/systemNotice/getLatestNotice').then(function(res) {
+						that.latestNotice = res.body.data;
+					});
+				},
+
+				markRead : function() {
+					var that = this;
+					that.$http.get('/systemNotice/markRead', {
+						params : {
+							id : that.latestNotice.id
+						}
+					}).then(function(res) {
+						that.getLatestNotice();
+					});
+				},
+
+				getUserAccountInfo : function() {
+					var that = this;
+					that.$http.get('/userAccount/getUserAccountInfo').then(function(res) {
+						that.userName = res.body.data.userName;
+						that.cashDeposit = res.body.data.cashDeposit;
+					});
+				},
+
+				logout : function() {
+					this.$http.post('/logout').then(function(res) {
+						window.location.href = '/my-home-page';
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>

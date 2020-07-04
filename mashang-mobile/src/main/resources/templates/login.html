@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>登录</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.8/lib/index.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.8/lib/vant.min.js"></script>
+<script src="/js/common/common.js"></script>
+<style type="text/css">
+.download-app {
+	text-align: center;
+	padding-top: 16px;
+	color: #1989fa;
+	font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+	<div id="login" v-cloak>
+		<div style="padding-top: 6rem;">
+			<div style="text-align: center; padding-bottom: 1.5rem;">登录</div>
+			<van-form> <van-field label="账号" v-model="userName" placeholder="请输入账号" clearable></van-field> <van-field label="登录密码" v-model="password" type="password" placeholder="请输入登录密码" clearable></van-field>
+			<van-field label="谷歌验证码" v-model="googleVerCode" placeholder="未绑定可不填" clearable v-show="memberClientLoginGoogleAuth"></van-field> </van-form>
+			<div style="margin: 16px;">
+				<van-button round block type="info" v-on:click="login">立即登录</van-button>
+			</div>
+			<div style="margin: 16px;" v-show="registerFun">
+				<van-button round block type="danger" v-on:click="window.location.href = '/register'">注册</van-button>
+			</div>
+			<div class="download-app" v-show="appUrl != null && appUrl != ''" v-on:click="window.location.href = appUrl">app下载</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var loginVM = new Vue({
+			el : '#login',
+			data : {
+				websiteTitle : '',
+				registerFun : false,
+				userName : '',
+				password : '',
+				googleVerCode : '',
+				memberClientLoginGoogleAuth : false,
+				verCode : '',
+				appUrl : '',
+			},
+			computed : {},
+			created : function() {
+			},
+			mounted : function() {
+				this.loadSystemSetting();
+				this.loadRegisterSetting();
+			},
+			methods : {
+
+				loadSystemSetting : function() {
+					var that = this;
+					that.$http.get('/masterControl/getSystemSetting').then(function(res) {
+						that.websiteTitle = res.body.data.websiteTitle;
+						that.memberClientLoginGoogleAuth = res.body.data.memberClientLoginGoogleAuth;
+						that.appUrl = res.body.data.appUrl;
+					});
+				},
+
+				loadRegisterSetting : function() {
+					var that = this;
+					that.$http.get('/masterControl/getRegisterSetting').then(function(res) {
+						that.registerFun = res.body.data.registerFun;
+					});
+				},
+
+				login : function() {
+					var that = this;
+					if (that.userName == null || that.userName == '') {
+						this.$notify({
+							type : 'warning',
+							message : '请输入账号'
+						});
+						return;
+					}
+					if (that.password == null || that.password == '') {
+						this.$notify({
+							type : 'warning',
+							message : '请输入密码'
+						});
+						return;
+					}
+					that.$http.post('/login', {
+						username : that.userName,
+						password : that.password,
+						googleVerCode : that.googleVerCode
+					}, {
+						emulateJSON : true
+					}).then(function(res) {
+						window.location.href = '/my-home-page';
+					});
+				}
+			}
+		});
+	</script>
+</body>
+</html>
